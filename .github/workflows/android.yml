@@ -47,15 +47,13 @@ jobs:
           EOF
 
       - name: Build signed APK
-        if: ${{ env.HAS_ANDROID_KEYSTORE != '' }}
         run: ./gradlew android:assembleRelease --no-daemon
 
       - name: Stage APK
-        if: ${{ env.HAS_ANDROID_KEYSTORE != '' }}
         run: |
           VER=$(grep -oP "appVersionName\s*=\s*'\K[^']+" build.gradle)
           mkdir -p release
-          cp android/build/outputs/apk/release/android-release.apk "release/ANDROID-Shattered-Pixel-Dungeon-QoL-${VER}.apk"
+          cp android/build/outputs/apk/release/android-*.apk "release/android-shattered-pixel-dungeon-${VER}.apk"
 
       - name: Upload Android artifact
         if: ${{ env.HAS_ANDROID_KEYSTORE != '' }}
