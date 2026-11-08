@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@v4
 
@@ -30,33 +28,16 @@ jobs:
       - name: Write local.properties
         run: echo "sdk.dir=$ANDROID_HOME" >> local.properties
 
-      - name: Configure release signing
-        if: ${{ env.HAS_ANDROID_KEYSTORE != '' }}
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
-          cat > android/keystore.properties <<EOF
-          storeFile=android/release.keystore
-          storePassword=${ANDROID_KEYSTORE_PASSWORD}
-          keyAlias=${ANDROID_KEY_ALIAS}
-          keyPassword=${ANDROID_KEY_PASSWORD}
-          EOF
-
-      - name: Build signed APK
-        run: ./gradlew android:assembleRelease --no-daemon
+      - name: Build signed Debug APK
+        run: ./gradlew android:assembleDebug --no-daemon
 
       - name: Stage APK
         run: |
           VER=$(grep -oP "appVersionName\s*=\s*'\K[^']+" build.gradle)
           mkdir -p release
-          cp android/build/outputs/apk/release/android-*.apk "release/android-shattered-pixel-dungeon-${VER}.apk"
+          cp android/build/outputs/apk/debug/android-debug.apk "release/android-shattered-pixel-dungeon-${VER}-debug.apk"
 
       - name: Upload Android artifact
-        if: ${{ env.HAS_ANDROID_KEYSTORE != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
