@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.ModMenu;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -275,6 +276,10 @@ public class Hero extends Char {
 	}
 
 	public int STR() {
+		if (ModMenu.str) {
+			return Math.max(99, STR);
+		}
+
 		int strBonus = 0;
 
 		strBonus += RingOfMight.strengthBonus( this );
@@ -391,6 +396,9 @@ public class Hero extends Char {
 	}
 
 	public int talentPointsAvailable(int tier){
+		if (ModMenu.infTalent) {
+			return 99;
+		}
 		if (lvl < (Talent.tierLevelThresholds[tier] - 1)
 			|| (tier == 3 && subClass == HeroSubClass.NONE)
 			|| (tier == 4 && armorAbility == null)) {
@@ -835,6 +843,13 @@ public class Hero extends Char {
 	
 	@Override
 	public boolean act() {
+
+		if (ModMenu.hp && isAlive()) {
+			HP = HT;
+		}
+		if (ModMenu.stealth) {
+			invisible = Math.max(invisible, 1);
+		}
 		
 		//calls to dungeon.observe will also update hero's local FOV.
 		fieldOfView = Dungeon.level.heroFOV;
@@ -1253,7 +1268,9 @@ public class Hero extends Char {
 			boolean hasKey = false;
 			int door = Dungeon.level.map[doorCell];
 			
-			if (Dungeon.branch != 0) {
+			if (ModMenu.noLock) {
+				hasKey = true;
+			} else if (Dungeon.branch != 0) {
 
 				//keys currently do not apply to sub-floors
 				hasKey = false;
@@ -1625,7 +1642,19 @@ public class Hero extends Char {
 	}
 
 	@Override
+	public boolean isInvulnerable(Class effect) {
+		if (ModMenu.invulnerable) return true;
+		return super.isInvulnerable(effect);
+	}
+
+	@Override
 	public void damage( int dmg, Object src ) {
+		if (ModMenu.invulnerable) {
+			return;
+		}
+		if (ModMenu.hp) {
+			HP = HT;
+		}
 		if (buff(TimekeepersHourglass.timeStasis.class) != null
 				|| buff(TimeStasis.class) != null) {
 			return;
@@ -2404,7 +2433,18 @@ public class Hero extends Char {
 				Buff.affect(this, Hunger.class).affectHunger(-4);
 			} else if (Dungeon.level.distance(pos, doorCell) <= 1) {
 				boolean hasKey = true;
-				if (Dungeon.branch != 0){
+				if (ModMenu.noLock) {
+					hasKey = true;
+					if (door == Terrain.CRYSTAL_DOOR) {
+						Level.set(doorCell, Terrain.EMPTY);
+						Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
+						CellEmitter.get( doorCell ).start( Speck.factory( Speck.DISCOVER ), 0.025f, 20 );
+					} else if (door == Terrain.LOCKED_EXIT) {
+						Level.set(doorCell, Terrain.UNLOCKED_EXIT);
+					} else {
+						Level.set(doorCell, Terrain.DOOR);
+					}
+				} else if (Dungeon.branch != 0){
 					hasKey = false; //keys currently do not work in sub-floors
 				} else if (door == Terrain.LOCKED_DOOR) {
 					hasKey = Notes.remove(new IronKey(Dungeon.depth));
@@ -2456,7 +2496,9 @@ public class Hero extends Char {
 				Buff.affect(this, Hunger.class).affectHunger(-4);
 			} else if (Dungeon.level.distance(pos, heap.pos) <= 1){
 				boolean hasKey = true;
-				if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
+				if (ModMenu.noLock) {
+					hasKey = true;
+				} else if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
 					Sample.INSTANCE.play( Assets.Sounds.BONES );
 				} else if (heap.type == Type.LOCKED_CHEST){
 					//keys currently do not work in sub-floors

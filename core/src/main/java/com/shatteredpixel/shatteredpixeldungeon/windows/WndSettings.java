@@ -23,6 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ModMenu;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
@@ -64,6 +66,7 @@ public class WndSettings extends WndTabbed {
 
 	private DisplayTab  display;
 	private UITab       ui;
+	private ModTab      mod;
 	private InputTab    input;
 	private DataTab     data;
 	private AudioTab    audio;
@@ -128,19 +131,35 @@ public class WndSettings extends WndTabbed {
 			});
 		}
 
-		data = new DataTab();
-		data.setSize(width, 0);
-		height = Math.max(height, data.height());
-		add( data );
+		if (Dungeon.hero != null) {
+			mod = new ModTab();
+			mod.setSize(width, 0);
+			height = Math.max(height, mod.height());
+			add( mod );
 
-		add( new IconTab(Icons.get(Icons.DATA)){
-			@Override
-			protected void select(boolean value) {
-				super.select(value);
-				data.visible = data.active = value;
-				if (value) last_index = 3;
-			}
-		});
+			add( new IconTab(Icons.get(Icons.CHALLENGE_COLOR)){
+				@Override
+				protected void select(boolean value) {
+					super.select(value);
+					mod.visible = mod.active = value;
+					if (value) last_index = 3;
+				}
+			});
+		} else {
+			data = new DataTab();
+			data.setSize(width, 0);
+			height = Math.max(height, data.height());
+			add( data );
+
+			add( new IconTab(Icons.get(Icons.DATA)){
+				@Override
+				protected void select(boolean value) {
+					super.select(value);
+					data.visible = data.active = value;
+					if (value) last_index = 3;
+				}
+			});
+		}
 
 		audio = new AudioTab();
 		audio.setSize(width, 0);
@@ -1256,6 +1275,277 @@ public class WndSettings extends WndTabbed {
 				height = txtTranifex.bottom();
 			}
 
+		}
+	}
+
+	private static class ModTab extends Component {
+
+		RenderedTextBlock title;
+
+		// Row 1 (3 items):
+		CheckBox chkHP;
+		CheckBox chkSTR;
+		RedButton btnSetSTR;
+
+		// Row 2 (2 items):
+		CheckBox chkInvulnerable;
+		CheckBox chkStealth;
+
+		// Row 3 (2 items):
+		CheckBox chkAutoIdentify;
+		CheckBox chkShop;
+
+		// Row 4 (2 items):
+		CheckBox chkInfTalent;
+		CheckBox chkNoLock;
+
+		// Row 5 (2 items):
+		CheckBox chkInfWand;
+		CheckBox chkInfItem;
+
+		// Row 6 (3 items):
+		RedButton btnX2Gold;
+		RedButton btnX2Energy;
+		RedButton btnX2Exp;
+
+		// Row 7 (2 items):
+		RedButton btnGetItem;
+		RedButton btnGoToLevel;
+
+		@Override
+		protected void createChildren() {
+			title = PixelScene.renderTextBlock("Mod menu", 9);
+			title.hardlight(TITLE_COLOR);
+			add(title);
+
+			// Row 1
+			chkHP = new CheckBox("HP") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.toggleHP(checked());
+				}
+			};
+			chkHP.checked(ModMenu.hp);
+			add(chkHP);
+
+			chkSTR = new CheckBox("STR") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.toggleSTR(checked());
+				}
+			};
+			chkSTR.checked(ModMenu.str);
+			add(chkSTR);
+
+			btnSetSTR = new RedButton("Set STR", 7) {
+				@Override
+				protected void onClick() {
+					GameScene.show(new WndTextInput("Set STR", "Enter strength value:", String.valueOf(Dungeon.hero != null ? Dungeon.hero.STR : 10), 3, false, "Set", "Cancel") {
+						@Override
+						public void onSelect(boolean positive, String text) {
+							if (positive && text != null && !text.trim().isEmpty()) {
+								try {
+									int val = Integer.parseInt(text.trim());
+									ModMenu.setStr(val);
+								} catch (Exception ignored) {}
+							}
+						}
+					});
+				}
+			};
+			add(btnSetSTR);
+
+			// Row 2
+			chkInvulnerable = new CheckBox("Invulnerable") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.invulnerable = checked();
+				}
+			};
+			chkInvulnerable.checked(ModMenu.invulnerable);
+			add(chkInvulnerable);
+
+			chkStealth = new CheckBox("Stealth") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.toggleStealth(checked());
+				}
+			};
+			chkStealth.checked(ModMenu.stealth);
+			add(chkStealth);
+
+			// Row 3
+			chkAutoIdentify = new CheckBox("Auto Identify") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.toggleAutoIdentify(checked());
+				}
+			};
+			chkAutoIdentify.checked(ModMenu.autoIdentify);
+			add(chkAutoIdentify);
+
+			chkShop = new CheckBox("Shop") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.shop = checked();
+				}
+			};
+			chkShop.checked(ModMenu.shop);
+			add(chkShop);
+
+			// Row 4
+			chkInfTalent = new CheckBox("∞ Talent") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.infTalent = checked();
+				}
+			};
+			chkInfTalent.checked(ModMenu.infTalent);
+			add(chkInfTalent);
+
+			chkNoLock = new CheckBox("No Lock") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.noLock = checked();
+				}
+			};
+			chkNoLock.checked(ModMenu.noLock);
+			add(chkNoLock);
+
+			// Row 5
+			chkInfWand = new CheckBox("∞ Wand use") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.infWand = checked();
+				}
+			};
+			chkInfWand.checked(ModMenu.infWand);
+			add(chkInfWand);
+
+			chkInfItem = new CheckBox("∞ Item") {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ModMenu.infItem = checked();
+				}
+			};
+			chkInfItem.checked(ModMenu.infItem);
+			add(chkInfItem);
+
+			// Row 6
+			btnX2Gold = new RedButton("X2 Gold", 7) {
+				@Override
+				protected void onClick() {
+					ModMenu.doubleGold();
+				}
+			};
+			add(btnX2Gold);
+
+			btnX2Energy = new RedButton("X2 Energy", 7) {
+				@Override
+				protected void onClick() {
+					ModMenu.doubleEnergy();
+				}
+			};
+			add(btnX2Energy);
+
+			btnX2Exp = new RedButton("X2 EXP", 7) {
+				@Override
+				protected void onClick() {
+					ModMenu.doubleExp();
+				}
+			};
+			add(btnX2Exp);
+
+			// Row 7
+			btnGetItem = new RedButton("Get item", 8) {
+				@Override
+				protected void onClick() {
+					GameScene.show(new WndGetItem());
+				}
+			};
+			add(btnGetItem);
+
+			btnGoToLevel = new RedButton("Go to level", 8) {
+				@Override
+				protected void onClick() {
+					GameScene.show(new WndTextInput("Go to level", "Enter depth (1-26):", String.valueOf(Dungeon.depth > 0 ? Dungeon.depth : 1), 2, false, "Go", "Cancel") {
+						@Override
+						public void onSelect(boolean positive, String text) {
+							if (positive && text != null && !text.trim().isEmpty()) {
+								try {
+									int depth = Integer.parseInt(text.trim());
+									if (depth >= 1 && depth <= 26) {
+										ModMenu.goToLevel(depth);
+									}
+								} catch (Exception ignored) {}
+							}
+						}
+					});
+				}
+			};
+			add(btnGoToLevel);
+		}
+
+		@Override
+		protected void layout() {
+			float bottom = y;
+
+			title.setPos((width - title.width()) / 2, bottom + GAP);
+			bottom = title.bottom() + 2 * GAP;
+
+			float rowGap = GAP;
+			float btnHeight = BTN_HEIGHT;
+
+			// Row 1: 3 columns
+			float col3 = (width - 2 * GAP) / 3f;
+			chkHP.setRect(0, bottom + rowGap, col3, btnHeight);
+			chkSTR.setRect(chkHP.right() + GAP, bottom + rowGap, col3, btnHeight);
+			btnSetSTR.setRect(chkSTR.right() + GAP, bottom + rowGap, width - chkSTR.right() - GAP, btnHeight);
+			bottom = chkHP.bottom();
+
+			// Row 2: 2 columns
+			float col2 = (width - GAP) / 2f;
+			chkInvulnerable.setRect(0, bottom + rowGap, col2, btnHeight);
+			chkStealth.setRect(chkInvulnerable.right() + GAP, bottom + rowGap, width - chkInvulnerable.right() - GAP, btnHeight);
+			bottom = chkInvulnerable.bottom();
+
+			// Row 3: 2 columns
+			chkAutoIdentify.setRect(0, bottom + rowGap, col2, btnHeight);
+			chkShop.setRect(chkAutoIdentify.right() + GAP, bottom + rowGap, width - chkAutoIdentify.right() - GAP, btnHeight);
+			bottom = chkAutoIdentify.bottom();
+
+			// Row 4: 2 columns
+			chkInfTalent.setRect(0, bottom + rowGap, col2, btnHeight);
+			chkNoLock.setRect(chkInfTalent.right() + GAP, bottom + rowGap, width - chkInfTalent.right() - GAP, btnHeight);
+			bottom = chkInfTalent.bottom();
+
+			// Row 5: 2 columns
+			chkInfWand.setRect(0, bottom + rowGap, col2, btnHeight);
+			chkInfItem.setRect(chkInfWand.right() + GAP, bottom + rowGap, width - chkInfWand.right() - GAP, btnHeight);
+			bottom = chkInfWand.bottom();
+
+			// Row 6: 3 columns
+			btnX2Gold.setRect(0, bottom + rowGap, col3, btnHeight);
+			btnX2Energy.setRect(btnX2Gold.right() + GAP, bottom + rowGap, col3, btnHeight);
+			btnX2Exp.setRect(btnX2Energy.right() + GAP, bottom + rowGap, width - btnX2Energy.right() - GAP, btnHeight);
+			bottom = btnX2Gold.bottom();
+
+			// Row 7: 2 columns
+			btnGetItem.setRect(0, bottom + rowGap, col2, btnHeight);
+			btnGoToLevel.setRect(btnGetItem.right() + GAP, bottom + rowGap, width - btnGetItem.right() - GAP, btnHeight);
+			bottom = btnGetItem.bottom();
+
+			height = bottom;
 		}
 	}
 }

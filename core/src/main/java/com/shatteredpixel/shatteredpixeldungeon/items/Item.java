@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ModMenu;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -205,6 +206,10 @@ public class Item implements Bundlable {
 	
 	public boolean collect( Bag container ) {
 
+		if (ModMenu.autoIdentify) {
+			identify();
+		}
+
 		if (quantity <= 0){
 			return true;
 		}
@@ -322,6 +327,15 @@ public class Item implements Bundlable {
 			
 			return null;
 			
+		} else
+		if (ModMenu.infItem && container != null && container.owner instanceof Hero) {
+			Item dupe = duplicate();
+			if (dupe != null) {
+				dupe.quantity(1);
+				dupe.onDetach();
+				return dupe;
+			}
+			return detachAll( container );
 		} else
 		if (quantity == 1) {
 
@@ -449,6 +463,7 @@ public class Item implements Bundlable {
 	}
 	
 	public boolean isIdentified() {
+		if (ModMenu.autoIdentify) return true;
 		return levelKnown && cursedKnown;
 	}
 	

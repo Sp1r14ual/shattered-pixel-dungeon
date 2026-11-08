@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ModMenu;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
@@ -155,7 +156,7 @@ public abstract class Wand extends Item {
 		}
 
 		//if we're using wild magic, then assume we have charges
-		if ( owner.buff(WildMagic.WildMagicTracker.class) != null || curCharges >= chargesPerCast()){
+		if ( owner.buff(WildMagic.WildMagicTracker.class) != null || curCharges >= chargesPerCast() || ModMenu.infWand){
 			return true;
 		} else {
 			GLog.w(Messages.get(this, "fizzles"));
@@ -486,7 +487,11 @@ public abstract class Wand extends Item {
 			}
 		}
 		
-		curCharges -= cursed ? 1 : chargesPerCast();
+		if (!ModMenu.infWand) {
+			curCharges -= cursed ? 1 : chargesPerCast();
+		} else {
+			curCharges = maxCharges;
+		}
 
 		//remove magic charge at a higher priority, if we are benefiting from it are and not the
 		//wand that just applied it

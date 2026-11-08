@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ModMenu;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -434,7 +435,7 @@ public abstract class Mob extends Char {
 					
 					if (enemies.isEmpty()) {
 						//try to find the hero third
-						if (fieldOfView[Dungeon.hero.pos] && Dungeon.hero.invisible <= 0) {
+						if (fieldOfView[Dungeon.hero.pos] && Dungeon.hero.invisible <= 0 && !ModMenu.stealth) {
 							enemies.add(Dungeon.hero);
 						}
 					}
@@ -461,7 +462,7 @@ public abstract class Mob extends Char {
 						enemies.add(mob);
 
 				//and look for the hero
-				if (fieldOfView[Dungeon.hero.pos] && Dungeon.hero.invisible <= 0) {
+				if (fieldOfView[Dungeon.hero.pos] && Dungeon.hero.invisible <= 0 && !ModMenu.stealth) {
 					enemies.add(Dungeon.hero);
 				}
 				
