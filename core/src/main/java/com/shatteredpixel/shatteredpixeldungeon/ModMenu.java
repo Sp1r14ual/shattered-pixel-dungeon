@@ -86,14 +86,7 @@ public class ModMenu {
 	public static void goToLevel(int targetDepth) {
 		if (Dungeon.hero == null) return;
 		try {
-			for (int i = 1; i < targetDepth; i++) {
-				if (!Dungeon.levelHasBeenGenerated(i, 0)) {
-					Dungeon.depth = i;
-					Dungeon.branch = 0;
-					Dungeon.level = Dungeon.newLevel();
-					Dungeon.saveLevel(GamesInProgress.curSlot);
-				}
-			}
+			Dungeon.hero.curAction = null;
 			Level.beforeTransition();
 			InterlevelScene.mode = InterlevelScene.Mode.RETURN;
 			InterlevelScene.returnDepth = targetDepth;

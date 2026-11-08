@@ -91,7 +91,7 @@ public class WindParticle extends PixelParticle {
 		@Override
 		public void update() {
 			
-			if (visible = (pos < Dungeon.level.heroFOV.length && Dungeon.level.heroFOV[pos])) {
+			if (visible = (Dungeon.level != null && Dungeon.level.heroFOV != null && pos < Dungeon.level.heroFOV.length && Dungeon.level.heroFOV[pos])) {
 				
 				super.update();
 

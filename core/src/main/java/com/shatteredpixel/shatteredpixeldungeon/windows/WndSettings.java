@@ -1485,6 +1485,7 @@ public class WndSettings extends WndTabbed {
 								try {
 									int depth = Integer.parseInt(text.trim());
 									if (depth >= 1 && depth <= 26) {
+										if (parent instanceof Window) ((Window)parent).hide();
 										ModMenu.goToLevel(depth);
 									}
 								} catch (Exception ignored) {}
