@@ -8,16 +8,16 @@ import com.watabou.noosa.Game;
 
 public class ModMenu {
 
-	public static boolean hp = false;
-	public static boolean str = false;
-	public static boolean invulnerable = false;
-	public static boolean stealth = false;
-	public static boolean autoIdentify = false;
-	public static boolean shop = false;
-	public static boolean infTalent = false;
-	public static boolean noLock = false;
-	public static boolean infWand = false;
-	public static boolean infItem = false;
+	public static boolean hp = true;
+	public static boolean str = true;
+	public static boolean invulnerable = true;
+	public static boolean stealth = true;
+	public static boolean autoIdentify = true;
+	public static boolean shop = true;
+	public static boolean infTalent = true;
+	public static boolean noLock = true;
+	public static boolean infWand = true;
+	public static boolean infItem = true;
 
 	public static void toggleHP(boolean val) {
 		hp = val;
