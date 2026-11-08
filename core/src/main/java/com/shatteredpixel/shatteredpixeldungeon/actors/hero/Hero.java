@@ -277,7 +277,7 @@ public class Hero extends Char {
 
 	public int STR() {
 		if (ModMenu.str) {
-			return Math.max(99, STR);
+			return Math.max(999, STR);
 		}
 
 		int strBonus = 0;

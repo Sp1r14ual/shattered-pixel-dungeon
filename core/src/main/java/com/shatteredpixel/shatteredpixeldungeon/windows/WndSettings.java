@@ -1342,7 +1342,7 @@ public class WndSettings extends WndTabbed {
 			btnSetSTR = new RedButton("Set STR", 7) {
 				@Override
 				protected void onClick() {
-					GameScene.show(new WndTextInput("Set STR", "Enter strength value:", String.valueOf(Dungeon.hero != null ? Dungeon.hero.STR : 10), 3, false, "Set", "Cancel") {
+					GameScene.show(new WndTextInput("Set STR", "Enter strength value:", "999", 3, false, "Set", "Cancel") {
 						@Override
 						public void onSelect(boolean positive, String text) {
 							if (positive && text != null && !text.trim().isEmpty()) {
