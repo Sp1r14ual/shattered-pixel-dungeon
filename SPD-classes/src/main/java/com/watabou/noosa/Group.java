@@ -97,6 +97,9 @@ public class Group extends Gizmo {
 	}
 	
 	public synchronized Gizmo add( Gizmo g ) {
+		if (members == null) {
+			return null;
+		}
 		
 		if (g.parent == this) {
 			return g;
@@ -122,6 +125,9 @@ public class Group extends Gizmo {
 	}
 	
 	public synchronized Gizmo addToFront( Gizmo g){
+		if (members == null) {
+			return null;
+		}
 
 		if (g.parent == this) {
 			return g;
@@ -152,6 +158,9 @@ public class Group extends Gizmo {
 	}
 	
 	public synchronized Gizmo addToBack( Gizmo g ) {
+		if (members == null) {
+			return null;
+		}
 		
 		if (g.parent == this) {
 			sendToBack( g );
@@ -282,10 +291,23 @@ public class Group extends Gizmo {
 	}
 	
 	public synchronized void clear() {
-		if (length == 0) return;
+		if (members == null || length == 0) return;
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
 			if (g != null) {
+				g.parent = null;
+			}
+		}
+		members.clear();
+		length = 0;
+	}
+
+	public synchronized void destroyChildren() {
+		if (members == null || length == 0) return;
+		for (int i=0; i < length; i++) {
+			Gizmo g = members.get( i );
+			if (g != null) {
+				g.destroy();
 				g.parent = null;
 			}
 		}

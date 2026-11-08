@@ -100,6 +100,7 @@ public class WndGetItem extends Window {
 
 	private ScrollPane pane;
 	private Component content;
+	private boolean itemSpawned = false;
 
 	public WndGetItem() {
 		super();
@@ -114,7 +115,8 @@ public class WndGetItem extends Window {
 	}
 
 	private void showCategories() {
-		content.clear();
+		if (content == null) return;
+		content.destroyChildren();
 
 		RenderedTextBlock title = PixelScene.renderTextBlock("Select Category", 9);
 		title.hardlight(TITLE_COLOR);
@@ -145,7 +147,8 @@ public class WndGetItem extends Window {
 	}
 
 	private void showItemsForCategory(String category) {
-		content.clear();
+		if (content == null) return;
+		content.destroyChildren();
 
 		RedButton btnBack = new RedButton("<- Back", 8) {
 			@Override
@@ -162,6 +165,7 @@ public class WndGetItem extends Window {
 		for (final Class<? extends Item> cl : items) {
 			try {
 				final Item sample = Reflection.newInstance(cl);
+				if (sample == null) continue;
 				RedButton btn = new RedButton(sample.title(), 7) {
 					@Override
 					protected void onClick() {
@@ -180,15 +184,23 @@ public class WndGetItem extends Window {
 	}
 
 	private void spawnItem(Class<? extends Item> cl) {
-		if (Dungeon.hero == null) return;
+		if (itemSpawned || Dungeon.hero == null) return;
+		itemSpawned = true;
 		Item item = Reflection.newInstance(cl);
 		if (item == null) return;
 		item.identify();
-		if (!item.collect()) {
+		if (!item.collect() && Dungeon.level != null) {
 			Dungeon.level.drop(item, Dungeon.hero.pos);
 		}
 		Sample.INSTANCE.play(Assets.Sounds.ITEM);
 		hide();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		content = null;
+		pane = null;
 	}
 
 	@SuppressWarnings("unchecked")
